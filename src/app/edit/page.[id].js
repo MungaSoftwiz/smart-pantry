@@ -1,6 +1,8 @@
 "use client"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import { db } from "../firebase";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { Container, Typography, TextField, Button } from "@mui/material";
 
 export default function EditItem() {
@@ -8,10 +10,33 @@ export default function EditItem() {
   const { id } = router.query;
   const [name, setName] = useState("");
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    const fetchItem = async () => {
+      if (id) {
+        const docRef = doc(db, 'pantry-items', id);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setName(docSnap.data().name);
+        } else {
+          console.log('No such document!');
+        }
+      }
+    };
+
+    fetchItem();
+  }, [id]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Update item in the list (in a real app, you would send a request to the server)
-    router.push("/");
+    try {
+      const docRef = doc(db, 'pantry-items', id);
+      await updateDoc(docRef, {
+        name: name,
+      });
+      router.push('/');
+    } catch (e) {
+      console.error('Error updating document: ', e);
+    }
   };
 
   return (
