@@ -1,5 +1,7 @@
 "use client"
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import {db} from "../firebase";
+import { collection, getDocs } from "firebase/firestore";
 import { Container, Typography, List, ListItem, ListItemText, Button } from "@mui/material";
 import Link from "next/link";
 
@@ -8,6 +10,19 @@ export default function Home() {
     { id: 1, name: "Rice" },
     { id: 2, name: "Beans" },
   ]);
+
+  useEffect(() => {
+    const fetchItems = async () => {
+      const querySnapshot = await getDocs(collection(db, "pantry-items"));
+      const itemsList = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setItems(itemsList);
+    };
+
+    fetchItems();
+  }, []);
 
   const handleDelete = (id) => {
     setItems(items.filter(item => item.id !== id));

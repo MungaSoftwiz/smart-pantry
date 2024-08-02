@@ -1,16 +1,24 @@
 "use client"
 import { useState } from "react";
-import { useRouter } from "next/router";
+import { db } from "../firebase";
+import { collection, addDoc } from "firebase/firestore"
 import { Container, Typography, TextField, Button } from "@mui/material";
 
 export default function AddItem() {
   const [name, setName] = useState("");
-  const router = useRouter();
+  
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Add item to the list (in a real app, you would send a request to the server)
-    router.push("/");
+    try {
+      await addDoc(collection(db, "pantry-items"), {
+        name: name,
+      });
+      setName("");
+      alert("Item added successfully!");
+    } catch (e) {
+      console.error("Error adding document: ", e);
+    }
   };
 
   return (
