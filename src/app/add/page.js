@@ -6,7 +6,7 @@ import { Container, Typography, TextField, Button } from "@mui/material";
 
 export default function AddItem() {
   const [name, setName] = useState("");
-  
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -23,7 +23,7 @@ export default function AddItem() {
 
   return (
     <Container>
-      <Typography variant="h4" sx={{ marginTop: 2, color: "#4E342E" }}>Add New Item</Typography>
+      <Typography variant="h4" sx={{ marginTop: 2, color: "#4E342E" }}>Add Pantry Item:</Typography>
       <form onSubmit={handleSubmit}>
         <TextField
           label="Item Name"
