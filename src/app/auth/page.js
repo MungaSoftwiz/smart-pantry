@@ -1,21 +1,58 @@
-import React, { useState } from 'react';
+"use client"
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { auth, googleProvider } from '../firebase';
 import { signInWithPopup, signOut, signInWithEmailAndPassword } from 'firebase/auth';
 import { Button, TextField, Container, Typography } from '@mui/material';
 
 const AuthPage = ( {setIsLoggedIn} ) => {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [user, setUser] = useState(null);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    // Listen to authentication state changes
+    const unsubscribe = auth.onAuthStateChanged(currentUser => {
+      if (currentUser) {
+        setUser(currentUser);
+        setIsLoggedIn(true);
+        router.push('../page'); // Redirect to home or another authenticated route
+      } else {
+        setUser(null);
+        setIsLoggedIn(false);
+        router.push('./auth'); // Redirect to login page or another non-authenticated route
+      }
+    });
+
+    return () => unsubscribe();
+  }, [router, setIsLoggedIn]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setError('');
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       setUser(userCredential.user);
       setIsLoggedIn(true);
+      router.push('../page'); // Redirect after login
     } catch (error) {
-      console.error('Error logging in: ', error);
+      let errorMessage = 'An error occurred. Please try again.';
+    switch (error.code) {
+      case 'auth/invalid-email':
+        errorMessage = 'Invalid email address.';
+        break;
+      case 'auth/wrong-password':
+        errorMessage = 'Incorrect password.';
+        break;
+      case 'auth/user-not-found':
+        errorMessage = 'User not found!';
+        break;
+      default:
+        errorMessage = 'Failed to sign in. Please check your credentials.';
+      }
+      setError(errorMessage);
     }
   };
 
@@ -24,6 +61,7 @@ const AuthPage = ( {setIsLoggedIn} ) => {
       await signOut(auth);
       setUser(null);
       setIsLoggedIn(false);
+      router.push('./auth'); // Redirect after logout
     } catch (error) {
       console.error('Error logging out: ', error);
     }
@@ -34,6 +72,7 @@ const AuthPage = ( {setIsLoggedIn} ) => {
       const result = await signInWithPopup(auth, provider);
       setUser(result.user);
       setIsLoggedIn(true);
+       router.push('../page'); // Redirect after provider login
     } catch (error) {
       console.error('Error with provider login: ', error);
     }
@@ -67,6 +106,7 @@ const AuthPage = ( {setIsLoggedIn} ) => {
             required
             sx={{ marginBottom: 2 }}
           />
+          {error && <Typography color="error">{error}</Typography>}
           <Button type="submit" variant="contained" color="primary" fullWidth>Login</Button>
           <Button variant="contained" color="primary" fullWidth onClick={() => handleProviderLogin(googleProvider)}>Login with Google</Button>
         </form>
