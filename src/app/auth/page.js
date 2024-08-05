@@ -79,7 +79,8 @@ const AuthPage = ({ setIsLoggedIn }) => {
   };
 
   if (user) {
-    return null; // or <Redirect to="/" /> if using a library that supports it
+    router.push('/');
+    //return null; // or <Redirect to="/" /> if using a library that supports it
   }
 
   return (
