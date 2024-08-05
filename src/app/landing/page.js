@@ -63,20 +63,20 @@ const LandingPage = () => {
         <Grid container spacing={3}>
           <Grid item xs={12} sm={4}>
             <FeatureCard>
-              <Typography variant="h6">Feature 1</Typography>
-              <Typography>Track your pantry items effortlessly.</Typography>
+              <Typography variant="h6">Items Tracking</Typography>
+              <Typography>Easily monitor and manage the items in your pantry to ensure you never run out of essentials.</Typography>
             </FeatureCard>
           </Grid>
           <Grid item xs={12} sm={4}>
             <FeatureCard>
-              <Typography variant="h6">Feature 2</Typography>
-              <Typography>TBD</Typography>
+              <Typography variant="h6">Recipe Suggestion</Typography>
+              <Typography>Recommends recipes based on the ingredients and items you have in your pantry.</Typography>
             </FeatureCard>
           </Grid>
           <Grid item xs={12} sm={4}>
             <FeatureCard>
-              <Typography variant="h6">Feature 3</Typography>
-              <Typography>TBD</Typography>
+              <Typography variant="h6">Image Classification</Typography>
+              <Typography>Automatically identifies and categorizes objects in photos taken with your camera.</Typography>
             </FeatureCard>
           </Grid>
         </Grid>
