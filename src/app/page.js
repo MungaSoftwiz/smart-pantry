@@ -8,13 +8,16 @@ import { auth } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import AddItemForm from "./add/page";
 import { useRouter } from "next/navigation";
-import MenuIcon from '@mui/icons-material/Menu';
+import MenuIcon from "@mui/icons-material/Menu";
 import AuthPage from './auth/page';
+import EditItem from "./edit/page";
 
 export default function Home() {
   const [items, setItems] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [editItemModalOpen, setEditItemModalOpen] = useState(false);
+  const [selectedItemId, setSelectedItemId] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -55,8 +58,22 @@ export default function Home() {
     }
   };
 
+  const toggleDrawer = () => {
+    setDrawerOpen(!drawerOpen);
+  };
+
+  const openEditItemModal = (id) => {
+    setSelectedItemId(id);
+    setEditItemModalOpen(true);
+  };
+
+  const closeEditItemModal = () => {
+    setEditItemModalOpen(false);
+    setSelectedItemId(null);
+  };
+
   const handleItemAdded = () => {
-    if (isLoggedIn) {
+   if (isLoggedIn) {
       const fetchItems = async () => {
         const querySnapshot = await getDocs(collection(db, 'pantry-items'));
         const itemsList = querySnapshot.docs.map(doc => ({
@@ -70,59 +87,52 @@ export default function Home() {
     }
   };
 
-  const toggleDrawer = () => {
-    setDrawerOpen(!drawerOpen);
-  };
-
   return (
     <Container>
-      {/* Render AuthPage if not logged in */}
-      {!isLoggedIn ? (
-        <AuthPage setIsLoggedIn={setIsLoggedIn} />
-      ) : (
+      {/* Sidebar */}
+      <Drawer
+        anchor="left"
+        open={drawerOpen}
+        onClose={toggleDrawer}
+        sx={{ width: 250, flexShrink: 0 }}
+      >
+        <Box
+          sx={{ width: 250 }}
+          role="presentation"
+          onClick={toggleDrawer}
+          onKeyDown={toggleDrawer}
+        >
+          <List>
+            <ListItem button component={Link} href="/">
+              <ListItemText primary="Dashboard" />
+            </ListItem>
+            <ListItem button component={Link} href="/add">
+              <ListItemText primary="Add Item" />
+            </ListItem>
+            <ListItem button component={Link} href="/recipes">
+              <ListItemText primary="Recipe Suggestions" />
+            </ListItem>
+            <ListItem button component={Link} href="/upload">
+              <ListItemText primary="Upload Image" />
+            </ListItem>
+          </List>
+        </Box>
+      </Drawer>
+
+      {/* Main Content */}
+      <IconButton edge="start" color="inherit" onClick={toggleDrawer} sx={{ mr: 2 }}>
+        <MenuIcon />
+      </IconButton>
+
+      {isLoggedIn ? (
         <>
-          {/* Sidebar */}
-          <Drawer
-            anchor="left"
-            open={drawerOpen}
-            onClose={toggleDrawer}
-            sx={{ width: 250, flexShrink: 0 }}
-          >
-            <Box
-              sx={{ width: 250 }}
-              role="presentation"
-              onClick={toggleDrawer}
-              onKeyDown={toggleDrawer}
-            >
-              <List>
-                <ListItem button component={Link} href="/">
-                  <ListItemText primary="Dashboard" />
-                </ListItem>
-                <ListItem button component={Link} href="/add">
-                  <ListItemText primary="Add Item" />
-                </ListItem>
-                <ListItem button component={Link} href="/recipes">
-                  <ListItemText primary="Recipe Suggestions" />
-                </ListItem>
-                <ListItem button component={Link} href="/upload">
-                  <ListItemText primary="Upload Image" />
-                </ListItem>
-              </List>
-            </Box>
-          </Drawer>
-
-          {/* Main Content */}
-          <IconButton edge="start" color="inherit" onClick={toggleDrawer} sx={{ mr: 2 }}>
-            <MenuIcon />
-          </IconButton>
-
           <AddItemForm onItemAdded={handleItemAdded} />
           <Typography variant="h4" sx={{ marginTop: 2, color: "#4E342E" }}>Pantry Items:</Typography>
           <List>
             {items.map(item => (
               <ListItem key={item.id}>
-                <ListItemText primary={item.name} secondary={`Num: ${item.quantity} - Desc: ${item.description}`} />
-                <Button component={Link} href={`/edit/${item.id}`} sx={{ color: "#4E342E", marginRight: 2 }}>
+                <ListItemText primary={item.name} secondary={`${item.quantity} - ${item.description}`} />
+                <Button onClick={() => openEditItemModal(item.id)} sx={{ color: "#4E342E", marginRight: 2 }}>
                   Edit
                 </Button>
                 <Button onClick={() => handleDelete(item.id)} sx={{ color: "#4E342E" }}>
@@ -132,6 +142,17 @@ export default function Home() {
             ))}
           </List>
         </>
+      ) : (
+        <Typography variant="h6" sx={{ marginTop: 2, color: "#4E342E" }}>Please log in to view pantry items.</Typography>
+      )}
+
+      {/* Edit Item Modal */}
+      {selectedItemId && (
+        <EditItem
+          open={editItemModalOpen}
+          onClose={closeEditItemModal}
+          id={selectedItemId}
+        />
       )}
     </Container>
   );
