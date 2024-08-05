@@ -1,14 +1,17 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useRouter } from "next/navigation";
 import { TextField, Button, Grid, Typography, Box } from '@mui/material';
 import { db } from '../firebase';
 import { collection, addDoc } from 'firebase/firestore';
 
 const AddItemForm = ({ onItemAdded }) => {
+  const router = useRouter();
   const [name, setName] = useState('');
   const [quantity, setQuantity] = useState('');
   const [description, setDescription] = useState('');
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,11 +25,22 @@ const AddItemForm = ({ onItemAdded }) => {
       setName('');
       setQuantity('');
       setDescription('');
-      onItemAdded();
+
+      if (onItemAdded) {
+        onItemAdded();
+      }
+
+      setIsSubmitted(true)
     } catch (error) {
       console.error('Error adding item: ', error);
     }
   };
+
+  useEffect(() => {
+    if (isSubmitted) {
+      router.push('/');
+    }
+  }, [isSubmitted, router]);
 
   return (
     <Box
