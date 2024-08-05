@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { db } from "../../firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { Container, Typography, TextField, Button, Snackbar } from "@mui/material";
+import { Container, Typography, TextField, Button, Snackbar, Alert } from "@mui/material";
 import { auth } from "../../firebase";
 import { onAuthStateChanged } from "firebase/auth";
 
@@ -23,7 +23,7 @@ export default function EditItem() {
         setIsLoggedIn(true);
       } else {
         setIsLoggedIn(false);
-        router.push('../auth'); // Redirect to login or another page if not logged in
+        router.push('/auth');
       }
     });
 
@@ -57,10 +57,9 @@ export default function EditItem() {
       setSnackbarMessage("Item updated successfully!");
       setSnackbarSeverity("success");
       setOpenSnackbar(true);
-      router.push('../../page');
       setTimeout(() => {
-        router.push('../../page');
-      }, 2000); // Delay to show the snackbar message
+        router.push('/');
+      }, 2000);
     } catch (e) {
       console.error('Error updating document: ', e);
       setSnackbarMessage("Error updating item.");
@@ -89,19 +88,27 @@ export default function EditItem() {
     );
   }
 
-return (
-    <Container>
-      <Typography variant="h4" sx={{ marginTop: 2, color: "#4E342E" }}>Edit Item</Typography>
-      <form onSubmit={handleSubmit}>
+  return (
+    <Container maxWidth="sm">
+      <Typography variant="h4" sx={{ marginTop: 2, color: "#4E342E", textAlign: 'center' }}>
+        Edit Item
+      </Typography>
+      <form onSubmit={handleSubmit} style={{ marginTop: '1rem' }}>
         <TextField
           label="Item Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
           fullWidth
+          variant="outlined"
+          required
           sx={{ marginBottom: 2 }}
         />
-        {/* Add more fields here if necessary */}
-        <Button type="submit" variant="contained" sx={{ backgroundColor: "#4E342E", color: "#FFF8E1" }}>
+        <Button
+          type="submit"
+          variant="contained"
+          fullWidth
+          sx={{ backgroundColor: "#4E342E", color: "#FFF8E1" }}
+        >
           Update Item
         </Button>
       </form>
@@ -109,10 +116,11 @@ return (
         open={openSnackbar}
         autoHideDuration={6000}
         onClose={() => setOpenSnackbar(false)}
-        message={snackbarMessage}
-        severity={snackbarSeverity}
-      />
+      >
+        <Alert onClose={() => setOpenSnackbar(false)} severity={snackbarSeverity} sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 }
-
