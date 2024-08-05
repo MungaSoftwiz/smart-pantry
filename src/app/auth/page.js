@@ -5,7 +5,7 @@ import { auth, googleProvider } from '../firebase';
 import { signInWithPopup, signOut, signInWithEmailAndPassword } from 'firebase/auth';
 import { Button, Box, TextField, Container, Typography } from '@mui/material';
 
-const AuthPage = ( {setIsLoggedIn} ) => {
+const AuthPage = ({ setIsLoggedIn }) => {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -22,7 +22,7 @@ const AuthPage = ( {setIsLoggedIn} ) => {
       } else {
         setUser(null);
         setIsLoggedIn(false);
-        router.push('/auth');
+        router.push('/landing');
       }
     });
 
@@ -61,7 +61,7 @@ const AuthPage = ( {setIsLoggedIn} ) => {
       await signOut(auth);
       setUser(null);
       setIsLoggedIn(false);
-      router.push('/auth');
+      router.push('/landing');
     } catch (error) {
       console.error('Error logging out: ', error);
     }
@@ -78,6 +78,10 @@ const AuthPage = ( {setIsLoggedIn} ) => {
     }
   };
 
+  if (user) {
+    return null; // or <Redirect to="/" /> if using a library that supports it
+  }
+
   return (
     <Container maxWidth="xs">
       <Box
@@ -86,7 +90,6 @@ const AuthPage = ( {setIsLoggedIn} ) => {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          //minHeight: '70vh',
           padding: 3,
           marginTop: 8,
           borderRadius: 2,
@@ -97,16 +100,7 @@ const AuthPage = ( {setIsLoggedIn} ) => {
         <Typography variant="h4" color="#1E1E1E" sx={{ marginBottom: 2 }}>
           {user ? 'Welcome Back!' : 'Login'}
         </Typography>
-        {user ? (
-          <Box textAlign="center">
-            <Typography variant="h6" color="1E1E1E">
-              Welcome, {user.displayName || user.email}
-            </Typography>
-            <Button variant="contained" color="secondary" onClick={handleLogout} sx={{ marginTop: 2 }}>
-              Logout
-            </Button>
-          </Box>
-        ) : (
+        {!user ? (
           <Box component="form" onSubmit={handleLogin} sx={{ width: '100%' }}>
             <TextField
               label="Email"
@@ -149,6 +143,15 @@ const AuthPage = ( {setIsLoggedIn} ) => {
               Login with Google
             </Button>
           </Box>
+        ) : (
+          <Box textAlign="center">
+            <Typography variant="h6" color="1E1E1E">
+              Welcome, {user.displayName || user.email}
+            </Typography>
+            <Button variant="contained" color="secondary" onClick={handleLogout} sx={{ marginTop: 2 }}>
+              Logout
+            </Button>
+          </Box>
         )}
       </Box>
     </Container>
@@ -156,3 +159,4 @@ const AuthPage = ( {setIsLoggedIn} ) => {
 };
 
 export default AuthPage;
+
