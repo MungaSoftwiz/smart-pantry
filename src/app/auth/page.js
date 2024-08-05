@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth, googleProvider } from '../firebase';
 import { signInWithPopup, signOut, signInWithEmailAndPassword } from 'firebase/auth';
-import { Button, TextField, Container, Typography } from '@mui/material';
+import { Button, Box, TextField, Container, Typography } from '@mui/material';
 
 const AuthPage = ( {setIsLoggedIn} ) => {
   const router = useRouter();
@@ -18,11 +18,11 @@ const AuthPage = ( {setIsLoggedIn} ) => {
       if (currentUser) {
         setUser(currentUser);
         setIsLoggedIn(true);
-        router.push('../page'); // Redirect to home or another authenticated route
+        router.push('/');
       } else {
         setUser(null);
         setIsLoggedIn(false);
-        router.push('./auth'); // Redirect to login page or another non-authenticated route
+        router.push('/auth');
       }
     });
 
@@ -36,7 +36,7 @@ const AuthPage = ( {setIsLoggedIn} ) => {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       setUser(userCredential.user);
       setIsLoggedIn(true);
-      router.push('../page'); // Redirect after login
+      router.push('/');
     } catch (error) {
       let errorMessage = 'An error occurred. Please try again.';
     switch (error.code) {
@@ -61,7 +61,7 @@ const AuthPage = ( {setIsLoggedIn} ) => {
       await signOut(auth);
       setUser(null);
       setIsLoggedIn(false);
-      router.push('./auth'); // Redirect after logout
+      router.push('/auth');
     } catch (error) {
       console.error('Error logging out: ', error);
     }
@@ -72,45 +72,85 @@ const AuthPage = ( {setIsLoggedIn} ) => {
       const result = await signInWithPopup(auth, provider);
       setUser(result.user);
       setIsLoggedIn(true);
-       router.push('../page'); // Redirect after provider login
+       router.push('/');
     } catch (error) {
       console.error('Error with provider login: ', error);
     }
   };
 
   return (
-    <Container>
-      <Typography variant="h4" sx={{ marginTop: 2 }}>Log In:</Typography>
-      {user ? (
-        <div>
-          <Typography variant="h6">Welcome, {user.displayName || user.email}</Typography>
-          <Button variant="contained" color="secondary" onClick={handleLogout}>Logout</Button>
-        </div>
-      ) : (
-        <form onSubmit={handleLogin}>
-          <TextField
-            label="Email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            fullWidth
-            required
-            sx={{ marginBottom: 2 }}
-          />
-          <TextField
-            label="Password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            fullWidth
-            required
-            sx={{ marginBottom: 2 }}
-          />
-          {error && <Typography color="error">{error}</Typography>}
-          <Button type="submit" variant="contained" color="primary" fullWidth>Login</Button>
-          <Button variant="contained" color="primary" fullWidth onClick={() => handleProviderLogin(googleProvider)}>Login with Google</Button>
-        </form>
-      )}
+    <Container maxWidth="xs">
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          //minHeight: '70vh',
+          padding: 3,
+          marginTop: 8,
+          borderRadius: 2,
+          backgroundColor: '#f5f5f5',
+          color: '#E0E0E0'
+        }}
+      >
+        <Typography variant="h4" color="#1E1E1E" sx={{ marginBottom: 2 }}>
+          {user ? 'Welcome Back!' : 'Login'}
+        </Typography>
+        {user ? (
+          <Box textAlign="center">
+            <Typography variant="h6" color="1E1E1E">
+              Welcome, {user.displayName || user.email}
+            </Typography>
+            <Button variant="contained" color="secondary" onClick={handleLogout} sx={{ marginTop: 2 }}>
+              Logout
+            </Button>
+          </Box>
+        ) : (
+          <Box component="form" onSubmit={handleLogin} sx={{ width: '100%' }}>
+            <TextField
+              label="Email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              fullWidth
+              required
+              sx={{ marginBottom: 2 }}
+              InputProps={{
+                sx: {
+                  borderRadius: 1,
+                },
+              }}
+            />
+            <TextField
+              label="Password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              fullWidth
+              required
+              sx={{ marginBottom: 2 }}
+              InputProps={{
+                sx: {
+                  borderRadius: 1,
+                },
+              }}
+            />
+            {error && <Typography color="error" sx={{ marginBottom: 2 }}>{error}</Typography>}
+            <Button type="submit" variant="contained" color="primary" fullWidth sx={{ marginBottom: 2 }}>
+              Login
+            </Button>
+            <Button
+              variant="contained"
+              color="secondary"
+              fullWidth
+              onClick={() => handleProviderLogin(googleProvider)}
+            >
+              Login with Google
+            </Button>
+          </Box>
+        )}
+      </Box>
     </Container>
   );
 };
