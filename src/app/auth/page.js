@@ -80,7 +80,6 @@ const AuthPage = ({ setIsLoggedIn }) => {
 
   if (user) {
     router.push('/');
-    //return null; // or <Redirect to="/" /> if using a library that supports it
   }
 
   return (
